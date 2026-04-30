@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">统计</string>
+    <string name="add_item">添加</string>
+    <string name="delete_item">删除</string>
+    <string name="chart">图表</string>
+    <string name="cancel">取消</string>
+    <string name="confirm">确认</string>
+    <string name="item">条目</string>
+    <string name="label">标签</string>
+    <string name="value">值</string>
+    <string name="draw_chart">绘制图表</string>
+    <string name="back">返回</string>
+    <string name="no_any_item">这里空空如也～\n请先添加数据！</string>
+</resources>
