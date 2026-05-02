@@ -79,14 +79,11 @@ fun LineChart(
         modifier = modifier
             .height(height)
             .fillMaxWidth(),
-
-        ) {
+    ) {
         itemsIndexed(data) { index, _ ->
             ChartColumn(index, data, animatedProcess.value)
         }
     }
-
-
 }
 
 @Composable
@@ -128,12 +125,19 @@ fun ChartColumn(
                 // 这里取Box组件的X中心点作为折线图的小圆点的X坐标
                 val centerX = size.width / 2
                 val radius = 4.dp.toPx()
-                val y: Float = calcY(point.value, minValue, maxValue, size.height, animatedProcess).toFloat()
+                val y: Float =
+                    calcY(point.value, minValue, maxValue, size.height, animatedProcess).toFloat()
 
                 // 绘制下一个点和与之相连的线
                 if (nextPoint != null) {
                     val yNext: Float =
-                        calcY(nextPoint.value, minValue, maxValue, size.height, animatedProcess).toFloat()
+                        calcY(
+                            nextPoint.value,
+                            minValue,
+                            maxValue,
+                            size.height,
+                            animatedProcess
+                        ).toFloat()
 
                     drawSegment(
                         fromX = centerX,
@@ -162,7 +166,13 @@ fun ChartColumn(
                 // 绘制前一个点和与之相连的线
                 if (prevPoint != null) {
                     val yPrev: Float =
-                        calcY(prevPoint.value, minValue, maxValue, size.height, animatedProcess).toFloat()
+                        calcY(
+                            prevPoint.value,
+                            minValue,
+                            maxValue,
+                            size.height,
+                            animatedProcess
+                        ).toFloat()
 
                     drawSegment(
                         fromX = -size.width / 2,
@@ -197,13 +207,19 @@ fun ChartColumn(
     }
 }
 
-private fun calcY(value: Double, minValue: Double, maxValue: Double, height: Float, animatedProcess: Float): Double {
+private fun calcY(
+    value: Double,
+    minValue: Double,
+    maxValue: Double,
+    height: Float,
+    animatedProcess: Float
+): Double {
     val relativeValue = value - minValue
     val relativeMaxValue = maxValue - minValue
 
     val proportion = relativeValue / (relativeMaxValue * SCALE_FACTOR)
 
-    return (height - proportion* animatedProcess * height)
+    return (height - proportion * animatedProcess * height)
 }
 
 private fun DrawScope.drawSegment(

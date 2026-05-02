@@ -126,7 +126,8 @@ fun Bar(
             Canvas(modifier = Modifier.fillMaxSize()) {
                 val barWidth = size.width
                 // 这里负数有点不好处理，先统一算0
-                val barHeight = (animatedValue.value.coerceAtLeast(0f) / maxValue * size.height).toFloat()
+                val barHeight =
+                    (animatedValue.value.coerceAtLeast(0f) / maxValue * size.height).toFloat()
                 val barTop = size.height - barHeight
                 drawRoundRect(
                     color = barColor,
