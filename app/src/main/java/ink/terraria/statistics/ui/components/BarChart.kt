@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import ink.terraria.statistics.data.Item
 import ink.terraria.statistics.data.testData
+import java.util.Locale
 
 private const val SCALE_FACTOR = 1.1f
 
@@ -113,7 +114,7 @@ fun Bar(
     ) {
         Box(modifier = Modifier.weight(1f)) {
             val valueTextLayout = textMeasurer.measure(
-                text = animatedValue.value.toInt().toString(),
+                text = String.format(Locale.CHINA, "%.2f", animatedValue.value),
                 style = MaterialTheme.typography.labelMedium,
             )
             val shape = MaterialTheme.shapes.extraSmall
