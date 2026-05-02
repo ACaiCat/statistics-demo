@@ -25,6 +25,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -32,6 +33,7 @@ import ink.terraria.statistics.data.Item
 import ink.terraria.statistics.data.testData
 import kotlin.math.sqrt
 
+private const val SCALE_FACTOR = 1.1f
 
 @Composable
 fun OutlineLineChart(
@@ -54,8 +56,6 @@ fun LineChart(
     data: List<Item>, modifier: Modifier = Modifier, height: Dp = 300.dp
 ) {
     if (data.isEmpty()) return
-    val maxValue = data.maxBy { it.value }.value
-    val maxDrawValue = maxValue.coerceAtLeast(1.0) * 1.1
 
     LazyRow(
         contentPadding = PaddingValues(16.dp),
@@ -65,7 +65,7 @@ fun LineChart(
 
         ) {
         itemsIndexed(data) { index, _ ->
-            ChartColumn(index, data, maxDrawValue)
+            ChartColumn(index, data)
         }
     }
 
@@ -75,12 +75,17 @@ fun LineChart(
 fun ChartColumn(
     index: Int,
     data: List<Item>,
-    maxDrawValue: Double,
     modifier: Modifier = Modifier
 ) {
     val textMeasurer = rememberTextMeasurer()
     val point = data[index]
-    Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = modifier) {
+    val maxValue = data.maxBy { it.value }.value
+    val minValue = data.minBy { it.value }.value
+
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = modifier.width(60.dp)
+    ) {
         Box(
             modifier = Modifier
                 .weight(1f)
@@ -103,10 +108,11 @@ fun ChartColumn(
             Canvas(Modifier.fillMaxSize()) {
                 val centerX = size.width / 2
                 val radius = 4.dp.toPx()
-                val y: Float = calcY(point.value, maxDrawValue, size.height).toFloat()
+                val y: Float = calcY(point.value, minValue, maxValue, size.height).toFloat()
 
                 if (nextPoint != null) {
-                    val yNext: Float = calcY(nextPoint.value, maxDrawValue, size.height).toFloat()
+                    val yNext: Float =
+                        calcY(nextPoint.value, minValue, maxValue, size.height).toFloat()
 
                     drawSegment(
                         fromX = centerX,
@@ -129,7 +135,8 @@ fun ChartColumn(
 
 
                 if (prevPoint != null) {
-                    val yPrev: Float = calcY(prevPoint.value, maxDrawValue, size.height).toFloat()
+                    val yPrev: Float =
+                        calcY(prevPoint.value, minValue, maxValue, size.height).toFloat()
 
                     drawSegment(
                         fromX = -size.width / 2,
@@ -155,15 +162,22 @@ fun ChartColumn(
         Text(
             text = point.label,
             maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
             style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(top = 4.dp)
+            modifier = Modifier
+                .padding(top = 4.dp)
         )
     }
 }
 
-private fun calcY(value: Double, maxValue: Double, height: Float): Double {
-    return (height - value / maxValue * height)
+private fun calcY(value: Double, minValue: Double, maxValue: Double, height: Float): Double {
+    val relativeValue = value - minValue
+    val relativeMaxValue = maxValue - minValue
+
+    val proportion = relativeValue / (relativeMaxValue * SCALE_FACTOR)
+
+    return (height - proportion * height)
 }
 
 private fun DrawScope.drawSegment(
@@ -193,12 +207,17 @@ private fun DrawScope.drawPointWithLabel(
     valueColor: Color
 ) {
     drawCircle(
-        color = pointColor, center = Offset(x, y), radius = radius
+        color = pointColor,
+        center = Offset(x, y),
+        radius = radius
     )
     drawText(
-        textLayoutResult = textLayout, topLeft = Offset(
-            x = (x - textLayout.size.width / 2f), y = (y - 20.dp.toPx())
-        ), color = valueColor
+        textLayoutResult = textLayout,
+        topLeft = Offset(
+            x = (x - textLayout.size.width / 2f),
+            y = (y - textLayout.size.height - radius - 4.dp.toPx())
+        ),
+        color = valueColor
     )
 }
 
