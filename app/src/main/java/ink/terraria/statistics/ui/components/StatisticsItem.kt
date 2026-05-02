@@ -43,7 +43,7 @@ fun StatisticsItem(
         state = dismissState,
         modifier = modifier
             .fillMaxWidth()
-            .clip(MaterialTheme.shapes.small),
+            .clip(MaterialTheme.shapes.medium),
         onDismiss = { direction ->
             if (direction == SwipeToDismissBoxValue.EndToStart) {
                 onRemove(item)
@@ -72,7 +72,6 @@ fun StatisticsItem(
                         textAlign = TextAlign.Center,
                     )
                 }
-
             }
         }
     ) {
@@ -80,8 +79,8 @@ fun StatisticsItem(
             modifier = Modifier
                 .fillMaxWidth()
                 .heightIn(min = 64.dp)
-                .clip(MaterialTheme.shapes.small)
-                .background(MaterialTheme.colorScheme.surface)
+                .clip(MaterialTheme.shapes.medium)
+                .background(MaterialTheme.colorScheme.surfaceVariant)
                 .padding(horizontal = 16.dp, vertical = 12.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
