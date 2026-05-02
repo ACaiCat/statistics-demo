@@ -103,9 +103,9 @@ fun HomeScreen(
 
                 ExtendedFloatingActionButton(
                     onClick = {
-                        if (uiState.items.isEmpty()){
+                        if (uiState.items.isEmpty()) {
                             Toast.makeText(context, R.string.no_any_item, Toast.LENGTH_SHORT).show()
-                        } else{
+                        } else {
                             onDrawChartClick()
                         }
                     }
