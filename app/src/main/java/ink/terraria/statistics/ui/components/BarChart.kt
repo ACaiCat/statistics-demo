@@ -26,11 +26,15 @@ import androidx.compose.ui.geometry.center
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import ink.terraria.statistics.data.Item
 import ink.terraria.statistics.data.testData
+import kotlin.math.max
+
+private const val SCALE_FACTOR = 1.1f
 
 @Composable
 fun OutlineBarChart(
@@ -58,7 +62,7 @@ fun BarChart(
 ) {
     if (data.isEmpty()) return
     val maxValue = data.maxBy { it.value }.value
-    val maxDrawValue = maxValue.coerceAtLeast(1.0) * 1.1
+    val maxDrawValue = maxValue.coerceAtLeast(1.0) * SCALE_FACTOR
 
     LazyRow(
         contentPadding = PaddingValues(16.dp),
@@ -77,7 +81,12 @@ fun BarChart(
 }
 
 @Composable
-fun Bar(tag: String, value: Double, maxValue: Double, modifier: Modifier = Modifier) {
+fun Bar(
+    tag: String,
+    value: Double,
+    maxValue: Double,
+    modifier: Modifier = Modifier
+) {
     val textMeasurer = rememberTextMeasurer()
     Column(
         horizontalAlignment = Alignment.CenterHorizontally, modifier = modifier
@@ -94,11 +103,10 @@ fun Bar(tag: String, value: Double, maxValue: Double, modifier: Modifier = Modif
 
             val valueColor = MaterialTheme.colorScheme.onSurface
             val barColor = MaterialTheme.colorScheme.primary
-            Canvas(
-                Modifier.fillMaxSize()
-            ) {
+            Canvas(modifier = Modifier.fillMaxSize()) {
                 val barWidth = size.width
-                val barHeight = (value / maxValue * size.height).toFloat()
+                // 这里负数有点不好处理，先统一算0
+                val barHeight = (max(value, 0.0) / maxValue * size.height).toFloat()
                 val barTop = size.height - barHeight
                 drawRoundRect(
                     color = barColor,
@@ -123,6 +131,7 @@ fun Bar(tag: String, value: Double, maxValue: Double, modifier: Modifier = Modif
         Text(
             text = tag,
             maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
             style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(top = 4.dp)
