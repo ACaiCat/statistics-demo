@@ -106,10 +106,12 @@ fun ChartColumn(
             val pointColor = MaterialTheme.colorScheme.primary
 
             Canvas(Modifier.fillMaxSize()) {
+                // 这里取Box组件的X中心点作为折线图的小圆点的X坐标
                 val centerX = size.width / 2
                 val radius = 4.dp.toPx()
                 val y: Float = calcY(point.value, minValue, maxValue, size.height).toFloat()
 
+                // 绘制下一个点和与之相连的线
                 if (nextPoint != null) {
                     val yNext: Float =
                         calcY(nextPoint.value, minValue, maxValue, size.height).toFloat()
@@ -123,7 +125,7 @@ fun ChartColumn(
                         lineColor = lineColor
                     )
 
-                    drawPointWithLabel(
+                    drawPointWithValue(
                         x = centerX + size.width,
                         y = yNext,
                         radius = radius,
@@ -133,7 +135,12 @@ fun ChartColumn(
                     )
                 }
 
+                // 这里会重复绘制是有意为之的，原来设计是只绘制下一个点和与之相连的线
+                // 但是发现LazyColumn会提前卸载上一条线，然后向右滑动的时候边缘的线会提前消失
+                // 而且LazyColumn好像不让改预加载了
+                // 所以这里还绘制了制前一个点和与之相连的线来防止前面边缘的线提前消失
 
+                // 绘制前一个点和与之相连的线
                 if (prevPoint != null) {
                     val yPrev: Float =
                         calcY(prevPoint.value, minValue, maxValue, size.height).toFloat()
@@ -147,7 +154,7 @@ fun ChartColumn(
                         lineColor = lineColor
                     )
 
-                    drawPointWithLabel(
+                    drawPointWithValue(
                         x = -size.width / 2,
                         y = yPrev,
                         radius = radius,
@@ -183,10 +190,14 @@ private fun calcY(value: Double, minValue: Double, maxValue: Double, height: Flo
 private fun DrawScope.drawSegment(
     fromX: Float, toX: Float, fromY: Float, toY: Float, radius: Float, lineColor: Color
 ) {
+    // 下面的计算是为了避开折现图的小圆点
     val dx = toX - fromX
     val dy = toY - fromY
     val len = sqrt(dx * dx + dy * dy)
+
+    // 防止除0，但是按理说也不会有0，算防御性编程了
     if (len == 0f) return
+
     val ux = dx / len
     val uy = dy / len
 
@@ -198,7 +209,7 @@ private fun DrawScope.drawSegment(
     )
 }
 
-private fun DrawScope.drawPointWithLabel(
+private fun DrawScope.drawPointWithValue(
     x: Float,
     y: Float,
     radius: Float,
@@ -215,6 +226,7 @@ private fun DrawScope.drawPointWithLabel(
         textLayoutResult = textLayout,
         topLeft = Offset(
             x = (x - textLayout.size.width / 2f),
+            // 这里补了一个半径，不然小圆点和值有点挤
             y = (y - textLayout.size.height - radius - 4.dp.toPx())
         ),
         color = valueColor
