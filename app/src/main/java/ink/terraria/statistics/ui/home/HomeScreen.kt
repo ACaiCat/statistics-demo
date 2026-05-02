@@ -56,6 +56,7 @@ fun HomeScreen(
     viewModel: HomeViewModel = viewModel(factory = AppViewModelProvider.factory)
 ) {
     val uiState by viewModel.homeUiState.collectAsState()
+    val context = LocalContext.current
     val showDialog = remember { mutableStateOf(false) }
 
     if (showDialog.value) {
@@ -75,7 +76,7 @@ fun HomeScreen(
             }
         )
     }
-    val context = LocalContext.current
+
     Scaffold(
         contentWindowInsets = WindowInsets(0),
         topBar = {
@@ -145,7 +146,8 @@ fun HomeBody(
 ) {
     LazyColumn(
         modifier = modifier.fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         items(
             items = items,
@@ -154,13 +156,11 @@ fun HomeBody(
             AnimatedVisibility(
                 visible = true,
                 modifier = Modifier.animateItem(),
-                exit = shrinkVertically(
-                    animationSpec = tween(300)
-                ) + fadeOut(animationSpec = tween(200))
+                exit = shrinkVertically(tween(300)) + fadeOut(tween(200))
             ) {
                 StatisticsItem(
-                    item,
-                    onItemRemove
+                    item = item,
+                    onRemove = onItemRemove
                 )
             }
         }
