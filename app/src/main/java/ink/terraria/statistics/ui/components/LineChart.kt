@@ -1,5 +1,8 @@
 package ink.terraria.statistics.ui.components
 
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.border
@@ -16,6 +19,8 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -46,7 +51,7 @@ fun OutlineLineChart(
             shape = MaterialTheme.shapes.medium
         )
     ) {
-        LineChart(data, height = height)
+        LineChart(data = data, height = height)
     }
 }
 
@@ -57,6 +62,18 @@ fun LineChart(
 ) {
     if (data.isEmpty()) return
 
+    val animatedProcess = remember { Animatable(0f) }
+
+    LaunchedEffect(data) {
+        animatedProcess.animateTo(
+            targetValue = 1f,
+            animationSpec = tween(
+                durationMillis = 1000,
+                delayMillis = 100,
+                easing = FastOutSlowInEasing
+            )
+        )
+    }
     LazyRow(
         contentPadding = PaddingValues(16.dp),
         modifier = modifier
@@ -65,9 +82,10 @@ fun LineChart(
 
         ) {
         itemsIndexed(data) { index, _ ->
-            ChartColumn(index, data)
+            ChartColumn(index, data, animatedProcess.value)
         }
     }
+
 
 }
 
@@ -75,6 +93,7 @@ fun LineChart(
 fun ChartColumn(
     index: Int,
     data: List<Item>,
+    animatedProcess: Float,
     modifier: Modifier = Modifier
 ) {
     val textMeasurer = rememberTextMeasurer()
@@ -109,12 +128,12 @@ fun ChartColumn(
                 // 这里取Box组件的X中心点作为折线图的小圆点的X坐标
                 val centerX = size.width / 2
                 val radius = 4.dp.toPx()
-                val y: Float = calcY(point.value, minValue, maxValue, size.height).toFloat()
+                val y: Float = calcY(point.value, minValue, maxValue, size.height, animatedProcess).toFloat()
 
                 // 绘制下一个点和与之相连的线
                 if (nextPoint != null) {
                     val yNext: Float =
-                        calcY(nextPoint.value, minValue, maxValue, size.height).toFloat()
+                        calcY(nextPoint.value, minValue, maxValue, size.height, animatedProcess).toFloat()
 
                     drawSegment(
                         fromX = centerX,
@@ -143,7 +162,7 @@ fun ChartColumn(
                 // 绘制前一个点和与之相连的线
                 if (prevPoint != null) {
                     val yPrev: Float =
-                        calcY(prevPoint.value, minValue, maxValue, size.height).toFloat()
+                        calcY(prevPoint.value, minValue, maxValue, size.height, animatedProcess).toFloat()
 
                     drawSegment(
                         fromX = -size.width / 2,
@@ -178,13 +197,13 @@ fun ChartColumn(
     }
 }
 
-private fun calcY(value: Double, minValue: Double, maxValue: Double, height: Float): Double {
+private fun calcY(value: Double, minValue: Double, maxValue: Double, height: Float, animatedProcess: Float): Double {
     val relativeValue = value - minValue
     val relativeMaxValue = maxValue - minValue
 
     val proportion = relativeValue / (relativeMaxValue * SCALE_FACTOR)
 
-    return (height - proportion * height)
+    return (height - proportion* animatedProcess * height)
 }
 
 private fun DrawScope.drawSegment(
