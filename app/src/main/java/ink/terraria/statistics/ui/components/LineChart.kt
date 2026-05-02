@@ -36,6 +36,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import ink.terraria.statistics.data.Item
 import ink.terraria.statistics.data.testData
+import java.util.Locale
 import kotlin.math.sqrt
 
 private const val SCALE_FACTOR = 1.1f
@@ -110,11 +111,11 @@ fun ChartColumn(
             val nextPoint = data.getOrNull(index + 1)
             val prevPoint = data.getOrNull(index - 1)
             val prevValueTextLayout = textMeasurer.measure(
-                text = prevPoint?.value.toString(),
+                text = String.format(Locale.CHINA, "%.2f", prevPoint?.value),
                 style = MaterialTheme.typography.labelMedium,
             )
             val nextValueTextLayout = textMeasurer.measure(
-                text = nextPoint?.value.toString(),
+                text = String.format(Locale.CHINA, "%.2f", nextPoint?.value),
                 style = MaterialTheme.typography.labelMedium,
             )
             val valueColor = MaterialTheme.colorScheme.onSurface
