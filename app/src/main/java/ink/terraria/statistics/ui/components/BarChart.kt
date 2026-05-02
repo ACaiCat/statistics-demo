@@ -1,5 +1,8 @@
 package ink.terraria.statistics.ui.components
 
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -17,6 +20,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
@@ -32,7 +37,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import ink.terraria.statistics.data.Item
 import ink.terraria.statistics.data.testData
-import kotlin.math.max
 
 private const val SCALE_FACTOR = 1.1f
 
@@ -73,8 +77,10 @@ fun BarChart(
     ) {
         items(data) { item ->
             Bar(
-                item.label, item.value, maxDrawValue, modifier = Modifier
-                    .width(40.dp)
+                tag = item.label,
+                value = item.value,
+                maxValue = maxDrawValue,
+                modifier = Modifier.width(40.dp)
             )
         }
     }
@@ -88,12 +94,26 @@ fun Bar(
     modifier: Modifier = Modifier
 ) {
     val textMeasurer = rememberTextMeasurer()
+
+    val animatedValue = remember { Animatable(0f) }
+
+    LaunchedEffect(value, maxValue) {
+        animatedValue.animateTo(
+            targetValue = value.toFloat(),
+            animationSpec = tween(
+                durationMillis = 1000,
+                delayMillis = 100,
+                easing = FastOutSlowInEasing
+            )
+        )
+    }
+
     Column(
         horizontalAlignment = Alignment.CenterHorizontally, modifier = modifier
     ) {
         Box(modifier = Modifier.weight(1f)) {
             val valueTextLayout = textMeasurer.measure(
-                text = value.toInt().toString(),
+                text = animatedValue.value.toInt().toString(),
                 style = MaterialTheme.typography.labelMedium,
             )
             val shape = MaterialTheme.shapes.extraSmall
@@ -106,7 +126,7 @@ fun Bar(
             Canvas(modifier = Modifier.fillMaxSize()) {
                 val barWidth = size.width
                 // 这里负数有点不好处理，先统一算0
-                val barHeight = (max(value, 0.0) / maxValue * size.height).toFloat()
+                val barHeight = (animatedValue.value.coerceAtLeast(0f) / maxValue * size.height).toFloat()
                 val barTop = size.height - barHeight
                 drawRoundRect(
                     color = barColor,
