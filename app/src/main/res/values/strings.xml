@@ -11,4 +11,6 @@
     <string name="draw_chart">绘制图表</string>
     <string name="back">返回</string>
     <string name="no_any_item">这里空空如也～\n请先添加数据！</string>
+    <string name="bar_chart">条形图</string>
+    <string name="line_chart">折线图</string>
 </resources>
