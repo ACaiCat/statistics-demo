@@ -217,7 +217,7 @@ private fun calcY(
 ): Double {
     val relativeValue = value - minValue
     val relativeMaxValue = maxValue - minValue
-    val relativeEvenValue = maxValue / 2
+    val relativeEvenValue = relativeMaxValue / 2
 
     // 把折线从中间掰向两端，初始为相对平均值，动画进度越高实际值占比越多，中间值占比越小，最后为实际值
     val proportion =
