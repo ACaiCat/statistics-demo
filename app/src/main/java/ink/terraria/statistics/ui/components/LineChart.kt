@@ -160,8 +160,8 @@ fun ChartColumn(
                 }
 
                 // 这里会重复绘制是有意为之的，原来设计是只绘制下一个点和与之相连的线
-                // 但是发现LazyColumn会提前卸载上一条线，然后向右滑动的时候边缘的线会提前消失
-                // 而且LazyColumn好像不让改预加载了
+                // 但是发现LazyRow会提前卸载上一条线，然后向右滑动的时候边缘的线会提前消失
+                // 而且LazyRow好像不让改预加载了
                 // 所以这里还绘制了制前一个点和与之相连的线来防止前面边缘的线提前消失
 
                 // 绘制前一个点和与之相连的线
@@ -203,7 +203,7 @@ fun ChartColumn(
             style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier
-                .padding(top = 4.dp)
+                .padding(top = 16.dp)
         )
     }
 }
